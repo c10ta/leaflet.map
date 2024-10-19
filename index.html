@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basic Leaflet Map</title>
+    <title>Enhanced Leaflet Map with Custom Buttons</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -10,24 +10,107 @@
             height: 100vh;
             width: 100vw;
         }
+        /* Zoom control styling */
+        .leaflet-control-zoom {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        /* Custom buttons on the bottom right corner */
+        .custom-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 20px;
+        }
+        /* Button specific styling */
+        #navButton {
+            background-color: green;
+        }
+        #compassButton {
+            background-color: blue;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <!-- Add buttons for navigation and compass -->
+    <div id="navButton" class="custom-button">🔍</div>
+    <div id="compassButton" class="custom-button">🧭</div>
+
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Initialize the map and set its view to a chosen geographical coordinates and zoom level
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        // Initialize the map with a modern tile layer (CartoDB Positron)
+        var map = L.map('map', {
+            center: [52.370216, 4.895168], // Amsterdam coordinates
+            zoom: 12,
+            zoomControl: false // Disable default zoom controls
+        });
 
-        // Load and display the tile layer on the map
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Add custom modern tiles (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://carto.com/">CartoDB</a>',
             maxZoom: 19
         }).addTo(map);
 
-        // Add a marker on the map
-        L.marker([51.505, -0.09]).addTo(map)
-            .bindPopup('A marker on the map.')
+        // Enable custom zoom control at the top-left corner
+        L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+
+        // Add marker to represent a specific location (Amsterdam)
+        var marker = L.marker([52.370216, 4.895168]).addTo(map)
+            .bindPopup("Amsterdam")
             .openPopup();
+
+        // Add multiple custom markers with coordinates
+        var markers = [
+            { lat: 52.379189, lng: 4.899431, name: "Marker 1" },
+            { lat: 52.370216, lng: 4.895168, name: "Marker 2" },
+            { lat: 52.363151, lng: 4.911253, name: "Marker 3" }
+        ];
+
+        markers.forEach(function(markerData) {
+            L.marker([markerData.lat, markerData.lng]).addTo(map)
+                .bindPopup(`<b>${markerData.name}</b><br>Lat: ${markerData.lat}, Lng: ${markerData.lng}`);
+        });
+
+        // Geofencing (Safezone) - Add a circle to create a safe zone
+        var safeZone = L.circle([52.370216, 4.895168], {
+            color: 'green',
+            fillColor: '#00FF00',
+            fillOpacity: 0.3,
+            radius: 500 // Safe zone radius in meters
+        }).addTo(map);
+
+        // Route history (Path of movement)
+        var routeCoords = [
+            [52.370216, 4.895168],
+            [52.372789, 4.892855],
+            [52.374592, 4.889204],
+            [52.377936, 4.889492]
+        ];
+        var route = L.polyline(routeCoords, { color: 'blue' }).addTo(map);
+
+        // Button actions (integrate with FlutterFlow)
+        document.getElementById('navButton').addEventListener('click', function() {
+            alert("Navigation button clicked! You can trigger a FlutterFlow action here.");
+            // You can trigger navigation or perform actions here in FlutterFlow
+        });
+
+        document.getElementById('compassButton').addEventListener('click', function() {
+            alert("Compass button clicked! You can trigger a FlutterFlow action here.");
+            // You can trigger a compass mode or any action here in FlutterFlow
+        });
     </script>
 </body>
 </html>
